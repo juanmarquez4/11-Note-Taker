@@ -1,7 +1,9 @@
 // here are the dependencies
 const express = require('express');
 const path = require ('path');
-const data = require('./db/db.json')
+const dataJSON = require('./db/db.json');
+const fs = require('fs');
+const {v4: uuidv4 } = require('uuid');
 
 // here express is initialized
 const PORT = process.env.port || 3001;
@@ -19,9 +21,33 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html'
 app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, 'public/notes.html')));
 
 // API routes
-app.get('/api/notes', (req, res) => res.json(data));
+app.get('/api/notes', (req, res) => {
+    fs.readFile(dataJSON).then((data) =>
+    res.json(JSON.parse(data)))
+});
 
-app.post ('/api/notes', (req, res) => { })
+app.post ('/api/notes', (req, res) => { 
+    const {title, text} = req.body;
+
+    if (title && text) {
+        const curentNote = {
+            title, 
+            text,
+            id: uuidv4(),
+        };
+
+        fs.readFile(curentNote, 'utf8', (err, data) => {
+            if (err) {
+              console.error(err);
+            } else {
+              const parsedData = JSON.parse(data);
+              parsedData.push(content);
+              writeToFile(curentNote, parsedData);
+            }
+          });
+
+    }
+})
 
 // here is the listener 
 app.listen(PORT, () => 
